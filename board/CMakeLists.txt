@@ -44,16 +44,24 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    ../bsp/src/bsp_can.cpp
+    ../modules/src/BMI088.cpp
+    ../libs/src/pid.cpp
+    ../bsp/src/bsp_pwm.cpp
     # Add user sources here
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ../bsp/include
+    ../libs/include
+    ../modules/include
     # Add user defined include paths
 )
 
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    CAN_DEBUG
     # Add user defined symbols
 )
 

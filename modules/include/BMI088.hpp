@@ -183,8 +183,8 @@ enum BMI088_SENSOR
          * @param data 数据
          * @param len 数据长度
          */
-        void ReadReg(enum BMI088_SENSOR cs, uint8_t addr, uint8_t *data, uint8_t len);
-
+        bool ReadReg(enum BMI088_SENSOR cs, uint8_t addr,
+        uint8_t* data, uint8_t len);
         /**
          * @brief 写数据到寄存器
          * @param cs 片选
@@ -192,7 +192,8 @@ enum BMI088_SENSOR
          * @param data 数据
          * @param len 数据长度
          */
-        void WriteReg(enum BMI088_SENSOR cs, uint8_t addr, uint8_t *data, uint8_t len);
+        bool WriteReg(enum BMI088_SENSOR cs, uint8_t addr,
+        uint8_t *data, uint8_t len);
 
         void Config() override;
         void Calibrate() override;
@@ -206,12 +207,18 @@ enum BMI088_SENSOR
         void VerifyAccData() override;
         void VerifyGyroData() override;
 
-        void TemperatureControl(float target_temp) override;
+        void TemperatureControl(float *temp) override;
+
+
+
 
 
 
     private:
-        float Gyro_offset[3]; // 陀螺仪零飘
+        float Gyro_offset[3] = {}; // 陀螺仪零飘
+        static float InvalidValue() ;
+        static int16_t DecodeSigned16(uint8_t low, uint8_t high) ;
+
     };
 
 }

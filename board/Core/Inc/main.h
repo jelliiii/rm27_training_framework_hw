@@ -57,6 +57,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define red_Pin GPIO_PIN_12
+#define red_GPIO_Port GPIOH
+#define green_Pin GPIO_PIN_11
+#define green_GPIO_Port GPIOH
+#define blue_Pin GPIO_PIN_10
+#define blue_GPIO_Port GPIOH
+#define Accel_Pin GPIO_PIN_4
+#define Accel_GPIO_Port GPIOA
+#define Gyro_Pin GPIO_PIN_0
+#define Gyro_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

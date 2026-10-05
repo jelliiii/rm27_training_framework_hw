@@ -1,15 +1,8 @@
-#ifndef BSP_CAN_H
-#define BSP_CAN_H
-
-#include "main.h"
-#include "can.h"
-
 /**
  * @brief 初始化CAN滤波器配置。
  * 设置CAN硬件的滤波器，用于优化接收数据的处理。
  * 更多信息，请参考原文，链接：https://blog.csdn.net/weixin_54448108/article/details/128570593
  */
-void CAN_Init(void);
 
 /**
  * @brief 发送CAN数据。
@@ -19,6 +12,27 @@ void CAN_Init(void);
  * @param len 数据长度
  * @note 该函数用于发送CAN数据，目前只支持标准帧
  */
-void CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t Id, uint8_t *msg, uint16_t len);
 
-#endif // BSP_CAN_HPP
+#ifndef BSP_CAN_H
+#define BSP_CAN_H
+
+#include "can.h"
+#include "main.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+HAL_StatusTypeDef CAN_Init(CAN_HandleTypeDef* hcan);
+HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t Id, uint8_t *msg, uint16_t len);
+
+#ifdef CAN_DEBUG
+// 单次回环测试：0 未收到结果，1 匹配，-1 收到的测试帧不匹配。
+extern volatile int32_t can_debug_result;
+HAL_StatusTypeDef CAN_DebugSend(void);
+#endif
+#ifdef __cplusplus
+}
+#endif
+#endif

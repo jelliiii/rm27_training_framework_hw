@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake_install.cmake",
+		"/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake/stm32cubemx/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
