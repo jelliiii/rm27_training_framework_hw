@@ -36,6 +36,6 @@ void PWM_SetPeriod(TIM_HandleTypeDef *htim, float period);
  * @param  dutyratio: 占空比，0~1
  * 只是对HAL库函数的形式上的封装
  */
-void PWM_SetDutyRatio(TIM_HandleTypeDef *htim, float dutyratio, uint32_t channel);
+void PWM_SetDutyRatio(TIM_HandleTypeDef *htim, float duty, uint32_t channel);
 
 #endif //RM26_H7_BSP_PWM_HPP

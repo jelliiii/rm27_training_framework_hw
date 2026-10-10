@@ -61,19 +61,11 @@ namespace BMI088
         }
     }
 
-    void cBMI088::TemperatureControl(float* temp)
+    void cBMI088::TemperatureControl(float target_temp)
     {
         // TODO: 温度读取完成后，用 TempPid 计算加热占空比并限制到 [0, 1]。
         // 未完成前保持加热关闭。
-        #if !defined(BMI088_HEATER_READY)
-
-            // 当前工程没有 htim10，PWM/PID 也尚未完成。
-            TempPid.Clear();
-            self_test.TEMP_CTRL_ERR = true;
-            return;
-
-        #else
-
+        
             // 示例软件限制，不是 BMI088 的额定极限。
             // 最终数值应按板级加热设计确定。
             constexpr float maxTarget = 55.0f;
@@ -120,7 +112,7 @@ namespace BMI088
                     TempPid.Clear();
 
                     PWM_SetDutyRatio(
-                        &HEATING_RESISTANCE_TIM, 0.0f,
+                        &HEATING_RESISTANCE_TIM, duty,
                         HEATING_RESISTANCE_CHANNEL);
 
                     self_test.TEMP_CTRL_ERR = true;
@@ -135,7 +127,7 @@ namespace BMI088
                 // 加热器只能加热；达到目标后关闭并清积分。
                 TempPid.Clear();
             }
-        PWM_SetDutyRatio(&HEATING_RESISTANCE_TIM, 0.0f, HEATING_RESISTANCE_CHANNEL);
+        PWM_SetDutyRatio(&HEATING_RESISTANCE_TIM, duty, HEATING_RESISTANCE_CHANNEL);
 
         self_test.TEMP_CTRL_ERR = false;
     }
@@ -151,7 +143,7 @@ namespace BMI088
             !ok || id != ACC_CHIP_ID_VAL;
 
         if (self_test.ACC_CHIP_ID_ERR)
-            self_test.INIT_ERR = true;  
+            self_test.INIT_ERR = true;
     }
 
         void cBMI088::VerifyGyroChipID()
@@ -163,7 +155,7 @@ namespace BMI088
         self_test.GYRO_CHIP_ID_ERR =!ok || id != GYRO_CHIP_ID_VAL;
 
         if (self_test.GYRO_CHIP_ID_ERR)
-            self_test.INIT_ERR = true;   
+            self_test.INIT_ERR = true;  
     }
 
     void cBMI088::VerifyAccData()
@@ -288,6 +280,7 @@ namespace BMI088
 
     void cBMI088::Config()
     {
+        self_test.INIT_ERR = true;
         tx_thread_sleep(10); //< 等待系统稳定
 
         /*-------------------------------------加速度计初始化-------------------------------------*/
@@ -325,6 +318,8 @@ namespace BMI088
         WriteReg(BMI088_CS_ACC, INT_MAP_DATA_ADDR, &pTxData, 1);
         tx_thread_sleep(5); //< 延时5ms
 
+        VerifyAccChipID();
+
         /*-------------------------------------陀螺仪初始化-------------------------------------*/
         //< 先软重启，清空所有寄存器
         pTxData = GYRO_SOFTRESET_VAL;
@@ -354,6 +349,16 @@ namespace BMI088
         pTxData = 0x01;
         WriteReg(BMI088_CS_GYRO, GYRO_INT3_INT4_IO_MAP_ADDR, &pTxData, 1);
         tx_thread_sleep(5); //< 延时5ms
+
+        VerifyGyroChipID();
+
+
+        if (self_test.ACC_CHIP_ID_ERR ||
+        self_test.GYRO_CHIP_ID_ERR)
+        return;
+
+        // 只有前面的全部初始化步骤都成功，才执行这里。
+        self_test.INIT_ERR = false;
     }
 
 
@@ -462,17 +467,16 @@ namespace BMI088
 
         // TODO: 丢弃加速度计读取时的首个无效字节，解析 11 位有符号温度并换算为摄氏度。
 
-        if (temp != nullptr) *temp = 0.0f;
     }
 
         // 用 NaN 表示本次没有有效测量，避免把通信失败当成 0。
-    static float cBMI088::InvalidValue()
+    float cBMI088::InvalidValue()
     {
         return std::numeric_limits<float>::quiet_NaN();
     }
 
     // 两个字节拼成有符号的 16 位整数：低字节在前。
-    static int16_t cBMI088::DecodeSigned16(uint8_t low, uint8_t high)
+    int16_t cBMI088::DecodeSigned16(uint8_t low, uint8_t high)
     {
         uint16_t bits =
             static_cast<uint16_t>(low) |

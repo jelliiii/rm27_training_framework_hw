@@ -207,7 +207,7 @@ enum BMI088_SENSOR
         void VerifyAccData() override;
         void VerifyGyroData() override;
 
-        void TemperatureControl(float *temp) override;
+        void TemperatureControl(float target_temp) override;
 
 
 
