@@ -55,23 +55,28 @@ HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t Id,  uint8_t *m
         return HAL_ERROR;
 
     // TODO: 校验标准帧 ID 和 DLC (0~8)，构造帧头并调用 HAL_CAN_AddTxMessage。
-    CAN_TxHeaderTypeDef header = {};
-    header.StdId = Id;
-    header.IDE = CAN_ID_STD;
-    header.RTR = CAN_RTR_DATA;
-    header.DLC = len;
-    header.TransmitGlobalTime = DISABLE;
+    CAN_TxHeaderTypeDef tx_header = {};
+    tx_header.StdId = Id;
+    tx_header.IDE = CAN_ID_STD;
+    tx_header.RTR = CAN_RTR_DATA;
+    tx_header.DLC = len;
+    tx_header.TransmitGlobalTime = DISABLE;
 
     // 当前 HAL 写邮箱时读取全部 8 字节，短帧也提供完整缓冲区。
     uint8_t payload[8] = {};
     if (len != 0U) std::memcpy(payload, msg, len);
     uint32_t mailbox = 0;
-    return HAL_CAN_AddTxMessage(hcan, &header, payload, &mailbox);
+    return HAL_CAN_AddTxMessage(hcan, &tx_header, payload, &mailbox);
 }
 
 // TODO: 实现 CAN 接收回调，根据总线和标准帧 ID 分发电机反馈。
 
 extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+    CAN_RxHeaderTypeDef rx_header={};
+    uint8_t rx_data[8];
+    HAL_CAN_GetRxFifoFillLevel(hcan,CAN_RX_FIFO0);
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data) != HAL_OK)
+    Error_Handler();
 
 }
 

@@ -42,7 +42,7 @@ namespace BMI088
                 Gyro_offset[2] = BMI088_GYRO_PRE_CALI_OFFSET_Z;
                 return;
             }
-            
+
                 // 这里读取的是原始值（因为Offset已清零）
             gyro_sum[0] += temp_gyro.x;
             gyro_sum[1] += temp_gyro.y;
@@ -122,7 +122,7 @@ namespace BMI088
                     TempPid.Clear();
 
                     PWM_SetDutyRatio(
-                        &HEATING_RESISTANCE_TIM, duty,
+                        &HEATING_RESISTANCE_TIM, 0.0f,
                         HEATING_RESISTANCE_CHANNEL);
 
                     self_test.TEMP_CTRL_ERR = true;
