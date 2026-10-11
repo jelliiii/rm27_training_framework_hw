@@ -6,12 +6,15 @@
 
 extern TX_THREAD led_thread;  //线程控制块
 extern TX_THREAD imu_thread;  //线程控制块
+extern TX_THREAD motor_thread;  //线程控制块
 
 extern uint8_t led_thread_stack[1024];  //线程栈
 extern uint8_t imu_thread_stack[1024];
+extern uint8_t motor_thread_stack[1024];
 
 extern void led_thread_entry(ULONG thread_input); //线程入口函数
 extern void imu_thread_entry(ULONG thread_input);
+extern void motor_thread_entry(ULONG thread_input);
 
 
 #define TX_NAME(s) const_cast<CHAR*>(s)
@@ -37,6 +40,10 @@ extern "C" void taskbooster(void)
     UINT status2 = tx_thread_create(&imu_thread, TX_NAME("IMU Thread"), imu_thread_entry, 0x1234,
                      imu_thread_stack, sizeof(imu_thread_stack),
                      10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
+    UINT status3 = tx_thread_create(&motor_thread, TX_NAME("MOTOR Thread"), motor_thread_entry, 0x1234,
+                     motor_thread_stack, sizeof(motor_thread_stack),
+                     10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
+
     if (status1 != TX_SUCCESS || status2 != TX_SUCCESS)
     {
         Error_Handler();

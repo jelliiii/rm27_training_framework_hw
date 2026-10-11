@@ -53,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ../threads/src/taskimu.cpp
     ../modules/src/DJIMotorHandler.cpp
     ../modules/src/M2006.cpp
+    ../threads/src/taskmotor.cpp
 
 
     # Add user sources here
