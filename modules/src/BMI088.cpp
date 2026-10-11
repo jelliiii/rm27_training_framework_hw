@@ -33,7 +33,17 @@ namespace BMI088
         // 2. 循环采样
         for (int i = 0; i < calib_samples; i++)
         {
-            ReadGyroData(&temp_gyro); // 这里读取的是原始值（因为Offset已清零）
+            ReadGyroData(&temp_gyro); 
+            if (self_test.GYRO_DATA_ERR == true){
+                self_test.CALIBRATE_ERR = true;
+            // 恢复默认值或保留上次值
+                Gyro_offset[0] = BMI088_GYRO_PRE_CALI_OFFSET_X; 
+                Gyro_offset[1] = BMI088_GYRO_PRE_CALI_OFFSET_Y;
+                Gyro_offset[2] = BMI088_GYRO_PRE_CALI_OFFSET_Z;
+                return;
+            }
+            
+                // 这里读取的是原始值（因为Offset已清零）
             gyro_sum[0] += temp_gyro.x;
             gyro_sum[1] += temp_gyro.y;
             gyro_sum[2] += temp_gyro.z;

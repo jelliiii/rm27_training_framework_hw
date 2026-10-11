@@ -15379,7 +15379,7 @@ Discarded input sections
  .text._ZNSt14numeric_limitsIfE9quiet_NaNEv
                 0x00000000       0x1c CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .text._ZN6BMI0887cBMI0889CalibrateEv
-                0x00000000      0x154 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
+                0x00000000      0x178 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .text._ZN6BMI0887cBMI08818TemperatureControlEf
                 0x00000000      0x1c0 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .text._ZN6BMI0887cBMI08815VerifyAccChipIDEv
@@ -15418,7 +15418,7 @@ Discarded input sections
                 0x00000000       0x20 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .rodata._ZTV4cIMU
                 0x00000000       0x38 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
- .debug_info    0x00000000     0x246c CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
+ .debug_info    0x00000000     0x2470 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_abbrev  0x00000000      0x63e CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_aranges
                 0x00000000       0xc0 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
@@ -15521,7 +15521,7 @@ Discarded input sections
  .debug_macro   0x00000000       0x17 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_macro   0x00000000       0x17 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_macro   0x00000000       0x17 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
- .debug_line    0x00000000     0x16e8 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
+ .debug_line    0x00000000     0x16f6 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_str     0x00000000    0xd710f CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .comment       0x00000000       0x45 CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj
  .debug_frame   0x00000000      0x31c CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj

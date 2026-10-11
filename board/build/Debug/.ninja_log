@@ -218,3 +218,5 @@
 4	230	1791682914605165242	CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/threads/src/taskbooster.cpp.obj	bdb13f1be050c976
 3	276	1791682914604968326	CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/bsp/src/bsp_pwm.cpp.obj	795b04efc16e243a
 276	488	1791682914877849152	board.elf	42bea043393123ec
+4	206	1791684342296424131	CMakeFiles/board.dir/Users/jli/f407_lijiali/rm27_training_framework_hw/modules/src/BMI088.cpp.obj	d648dd6723d159de
+206	398	1791684342498445651	board.elf	42bea043393123ec
