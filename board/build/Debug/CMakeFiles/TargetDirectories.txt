@@ -1,7 +1,0 @@
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/CMakeFiles/board.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/CMakeFiles/edit_cache.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/CMakeFiles/rebuild_cache.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake/stm32cubemx/CMakeFiles/ThreadX.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
-/Users/jli/f407_lijiali/rm27_training_framework_hw/board/build/Debug/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir
