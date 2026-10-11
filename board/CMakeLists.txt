@@ -48,6 +48,10 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ../modules/src/BMI088.cpp
     ../libs/src/pid.cpp
     ../bsp/src/bsp_pwm.cpp
+    ../threads/src/taskbooster.cpp
+    ../threads/src/taskled.cpp
+
+
     # Add user sources here
 )
 
@@ -56,6 +60,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ../bsp/include
     ../libs/include
     ../modules/include
+    ../threads/include
+
     # Add user defined include paths
 )
 

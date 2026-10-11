@@ -44,19 +44,19 @@
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 72,
+				"line" : 78,
 				"parent" : 0
 			},
 			{
 				"command" : 2,
 				"file" : 0,
-				"line" : 63,
+				"line" : 69,
 				"parent" : 0
 			},
 			{
 				"command" : 3,
 				"file" : 0,
-				"line" : 55,
+				"line" : 59,
 				"parent" : 0
 			},
 			{
@@ -138,6 +138,10 @@
 				{
 					"backtrace" : 6,
 					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../modules/include"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../threads/include"
 				},
 				{
 					"backtrace" : 3,
@@ -244,6 +248,10 @@
 					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../modules/include"
 				},
 				{
+					"backtrace" : 6,
+					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../threads/include"
+				},
+				{
 					"backtrace" : 3,
 					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/cmake/stm32cubemx/../../Core/Inc"
 				},
@@ -328,6 +336,10 @@
 					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../modules/include"
 				},
 				{
+					"backtrace" : 6,
+					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/../threads/include"
+				},
+				{
 					"backtrace" : 3,
 					"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/board/cmake/stm32cubemx/../../Core/Inc"
 				},
@@ -366,7 +378,9 @@
 				16,
 				17,
 				18,
-				19
+				19,
+				20,
+				21
 			]
 		}
 	],
@@ -451,7 +465,9 @@
 				16,
 				17,
 				18,
-				19
+				19,
+				20,
+				21
 			]
 		},
 		{
@@ -466,8 +482,6 @@
 			"name" : "Object Libraries",
 			"sourceIndexes" : 
 			[
-				20,
-				21,
 				22,
 				23,
 				24,
@@ -647,7 +661,9 @@
 				198,
 				199,
 				200,
-				201
+				201,
+				202,
+				203
 			]
 		}
 	],
@@ -851,6 +867,26 @@
 			],
 			"compileGroupIndex" : 2,
 			"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/bsp/src/bsp_pwm.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 8,
+			"backtraces" : 
+			[
+				8
+			],
+			"compileGroupIndex" : 2,
+			"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/threads/src/taskbooster.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 8,
+			"backtraces" : 
+			[
+				8
+			],
+			"compileGroupIndex" : 2,
+			"path" : "/Users/jli/f407_lijiali/rm27_training_framework_hw/threads/src/taskled.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

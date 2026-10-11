@@ -138,7 +138,11 @@ void PWM_SetPeriod(TIM_HandleTypeDef *htim, float period_s)
     htim->Init.Period = arr;
 
     // 将预分频、ARR 和比较值装载到有效寄存器。
-    __HAL_TIM_GENERATE_EVENT(htim, TIM_EVENTSOURCE_UPDATE);
+    if (HAL_TIM_GenerateEvent(htim, TIM_EVENTSOURCE_UPDATE) != HAL_OK)
+    {
+        Error_Handler();
+        return;
+    }   
     __HAL_TIM_CLEAR_FLAG(htim, TIM_FLAG_UPDATE);
     __HAL_TIM_SET_COUNTER(htim, 0U);
 
