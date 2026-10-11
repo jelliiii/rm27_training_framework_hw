@@ -2,6 +2,21 @@
 
 M2006::M2006()
 {
+        controlMode = RELAX_MODE;
+
+        speedSet = 0;
+        positionSet = 0;
+        currentSet = 0;
+
+        maxCurrent = 0;
+
+        motorFeedback = {};
+        canId = 0;
+        hcan = nullptr;
+        AliveFlag = Pre_AliveFlag = 0;
+        gearBox = GearBox_None;
+        MotorState = MOTOR_OFFLINE;
+
     // TODO: 根据 M2006 手册设置减速比、允许电流和速度/位置环 PID 参数。
     // 基类初始化为松开模式、零电流；完成配置前不允许驱动电机。
 }

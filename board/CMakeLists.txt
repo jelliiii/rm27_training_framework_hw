@@ -50,6 +50,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ../bsp/src/bsp_pwm.cpp
     ../threads/src/taskbooster.cpp
     ../threads/src/taskled.cpp
+    ../threads/src/taskimu.cpp
 
 
     # Add user sources here

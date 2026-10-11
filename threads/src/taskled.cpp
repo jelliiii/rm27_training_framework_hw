@@ -11,11 +11,11 @@ uint8_t led_thread_stack[1024]={0};
 
     while (1) {
         HAL_GPIO_TogglePin(GPIOH, red_Pin);
-        tx_thread_sleep(1);
+        tx_thread_sleep(100);
         HAL_GPIO_TogglePin(GPIOH, blue_Pin);
 
         // Implement the LED control functionality here
 
-        tx_thread_sleep(1);
+        tx_thread_sleep(100);
     }
 }

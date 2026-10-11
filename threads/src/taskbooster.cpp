@@ -30,14 +30,14 @@ extern "C" void taskbooster(void)
     //                    TX_AUTO_START);                 /* 创建后立即启动 */
 
     // Implement the task booster functionality here  
-    UINT status = tx_thread_create(&led_thread, TX_NAME("LED Thread"), led_thread_entry, 0x1234,
+    UINT status1 = tx_thread_create(&led_thread, TX_NAME("LED Thread"), led_thread_entry, 0x1234,
                      led_thread_stack, sizeof(led_thread_stack),
                      10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
 
-    // UINT status = tx_thread_create(&imu_thread, TX_NAME("IMU Thread"), imu_thread_entry, 0x1234,
-    //                  imu_thread_stack, sizeof(imu_thread_stack),
-    //                  10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (status != TX_SUCCESS)
+    UINT status2 = tx_thread_create(&imu_thread, TX_NAME("IMU Thread"), imu_thread_entry, 0x1234,
+                     imu_thread_stack, sizeof(imu_thread_stack),
+                     10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
+    if (status1 != TX_SUCCESS || status2 != TX_SUCCESS)
     {
         Error_Handler();
     }
