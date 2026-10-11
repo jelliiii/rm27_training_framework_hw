@@ -42,3 +42,6 @@ c_cpp_properties.json 让你告别了“瞎猜”，直接去读 CMake 生成的
 ### 算法工具层 (libs/)
 
 （横向支撑）提供 PID.Calc()、CRC_Check() 等纯数学和工具函数，被上层任意调用。
+
+## 第三次
+

@@ -146,6 +146,10 @@ namespace BMI088
     {
         uint8_t id = 0;
 
+        uint8_t dummy;
+
+        ReadReg(BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &dummy, 1);
+
         bool ok = ReadReg(
             BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &id, 1);
 
@@ -303,29 +307,29 @@ namespace BMI088
 
         //< 打开加速度计电源
         pTxData = ACC_PWR_CTRL_ON;
-        WriteReg(BMI088_CS_ACC, ACC_PWR_CTRL_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, ACC_PWR_CTRL_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(150);
 
         //< 加速度计变成正常模式
         pTxData = ACC_PWR_CONF_ACT;
-        WriteReg(BMI088_CS_ACC, ACC_PWR_CONF_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, ACC_PWR_CONF_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(10); //
 
         //< 测量范围
         pTxData = ACC_RANGE_6G;
-        WriteReg(BMI088_CS_ACC, ACC_RANGE_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, ACC_RANGE_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(5); //< 延时5ms
 
         pTxData = 0xAB;
-        WriteReg(BMI088_CS_ACC, ACC_CONF_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, ACC_CONF_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(5); //< 延时5ms
 
         pTxData = 0x08;
-        WriteReg(BMI088_CS_ACC, INT1_IO_CTRL_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, INT1_IO_CTRL_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(5); //< 延时5ms
 
         pTxData = 0x04;
-        WriteReg(BMI088_CS_ACC, INT_MAP_DATA_ADDR, &pTxData, 1);
+        if(!WriteReg(BMI088_CS_ACC, INT_MAP_DATA_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(5); //< 延时5ms
 
         VerifyAccChipID();
@@ -340,7 +344,7 @@ namespace BMI088
         WriteReg(BMI088_CS_GYRO, GYRO_RANGE_ADDR, &pTxData, 1);
         tx_thread_sleep(5); //< 延时5ms
 
-        pTxData = GYRO_ODR_2000Hz_BANDWIDTH_230Hz | GYRO_LPM1_SUS;
+        pTxData = GYRO_ODR_2000Hz_BANDWIDTH_230Hz;
         WriteReg(BMI088_CS_GYRO, GYRO_BANDWIDTH_ADDR, &pTxData, 1);
         tx_thread_sleep(5); //< 延时5ms
 
@@ -405,7 +409,10 @@ namespace BMI088
 
         // 本例把 ACC_DATA_ERR 定义为三轴加速度是否有效。
         // 温度异常由温控函数单独处理。
-        self_test.ACC_DATA_ERR = false;
+        self_test.ACC_DATA_ERR =
+            !std::isfinite(data->x) ||
+            !std::isfinite(data->y) ||
+            !std::isfinite(data->z);
 
         // TODO: 按 BMI088 加速度计 SPI 协议丢弃首个无效字节，拼接三轴有符号原始值，
         // 再按配置的量程换算为 m/s²，写入 data。

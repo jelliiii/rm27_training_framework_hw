@@ -51,6 +51,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ../threads/src/taskbooster.cpp
     ../threads/src/taskled.cpp
     ../threads/src/taskimu.cpp
+    ../modules/src/DJIMotorHandler.cpp
+    ../modules/src/M2006.cpp
 
 
     # Add user sources here
