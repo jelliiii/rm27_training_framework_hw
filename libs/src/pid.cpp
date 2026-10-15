@@ -44,12 +44,12 @@ void PID::UpdateResult()
         maxOut < 0.0f ||
         maxIOut < 0.0f ||
         (mode != PID_POSITION && mode != PID_DELTA) ||
-        !std::isfinite(err[0]);
+        !std::isfinite(err[0]); //先判断各数据是否有效及模式是否有效
 
     if (invalid)
     {
         Clear();
-        return;
+        return; //若无效则直接返回
     }
 
     if (mode == PID_POSITION)

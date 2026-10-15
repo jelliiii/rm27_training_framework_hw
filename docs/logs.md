@@ -45,3 +45,6 @@ c_cpp_properties.json 让你告别了“瞎猜”，直接去读 CMake 生成的
 
 ## 第三次
 
+![alt text](image.png)
+		//"toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
+		//"toolchainFile": "${sourceDir}/board/cmake/gcc-arm-none-eabi.cmake",***错误的，相当于打开了 board 两次

@@ -3,6 +3,8 @@
 
 #include "pid.hpp"
 #include "can.h"
+#include "main.h"
+#include <cstdint>
 
 enum GearBox
 {
