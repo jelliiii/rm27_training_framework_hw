@@ -1,6 +1,6 @@
 #include "M2006.hpp"
 #include <cmath>
-#include <cstdint>
+#include <cstdlib>
 
 namespace{
     constexpr float PI = 3.14159265358979323846f;
