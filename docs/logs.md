@@ -48,3 +48,17 @@ c_cpp_properties.json 让你告别了“瞎猜”，直接去读 CMake 生成的
 ![alt text](image.png)
 		//"toolchainFile": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake",
 		//"toolchainFile": "${sourceDir}/board/cmake/gcc-arm-none-eabi.cmake",***错误的，相当于打开了 board 两次
+## 第四次
+
+### 电机控制线程中：
+
+#### motor.AliveCheck()设置了控制模式才能动，每 10 毫秒检查一次状态是否掉线；
+
+#### 以及循环setOutput()//根据 pid 计算结果反馈设置currentSet
+
+#### 循环sendControlData()//对各个电机的 currentSet 进行最大限制，数据移位打包操作，最后发送
+
+#### 感天动地电机终于转了（把tx_thread_sleep(1)移到 while前面了，可能给 can 初始化 以及其他线程一些时间？）
+
+
+

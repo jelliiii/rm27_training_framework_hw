@@ -28,6 +28,9 @@ void imu_thread_entry(ULONG thread_input){
 
     imu_stage = 3;
 
+    while(1)
+    {
+
 
         imu_sensor.VerifyAccChipID();
         imu_sensor.VerifyGyroChipID();
@@ -42,6 +45,6 @@ void imu_thread_entry(ULONG thread_input){
         if(imu_sensor.self_test.ACC_CHIP_ID_ERR || imu_sensor.self_test.GYRO_CHIP_ID_ERR){
             imu_error_count++;
         }
-
-        tx_thread_sleep(100);
+        tx_thread_sleep(1);
+    }
 }

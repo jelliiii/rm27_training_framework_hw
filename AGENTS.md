@@ -561,3 +561,16 @@ if (CAN_DebugSend() != HAL_OK) Error_Handler();
 2. 新阻断：taskmotor.cpp 只 sleep(10) 一次后返回。当前100Hz tick，约100ms后局部 M2006 motor 被析构，注册表仍持有其地址，后续CAN中断会访问生命周期已结束的对象。必须将 sleep 放在永久循环中；可以另外将 motor 声明为 static 便于长期保留，但仍需周期任务。
 3. 最小反馈实验修复：保留初始化，在函数末尾使用 while (1) { tx_thread_sleep(1); }。保持 RELAX_MODE，不发送控制指令；完整构建后观察注册槽位和 AliveFlag/编码器/速度数据。此时未调用AliveCheck，OFFLINE仍属预期。
 4. 转动测试仍未就绪：没有周期在线检查、进入SPD_MODE、setOutput或sendControlData，kp及目标虽非零也不会驱动。闭环接入时补共享数据同步、明确启动/停止与断联处理；kp=50仅是已配置值，不代表已调参验证。
+
+---
+
+# 记录 007｜2026-10-16｜有反馈但不转的直接原因
+
+验证：只读检查最新源码，ARM g++ 对 taskmotor/M2006/DJIMotorHandler/PID/CAN 五个 cpp 的语法检查通过。未上板；用户报告反馈测试通过。未改业务源码。
+
+1. 已解决线程返回/局部对象失效问题；循环已有 setOutput、sendControlData 和 sleep(1)。任务已在构造后设置 kp=500、speedSet=10 和 SPD_MODE。
+
+## 2. 直接阻断：没有调用 AliveCheck。注册后 MotorState=OFFLINE，反馈解析只增加 AliveFlag，不修改 MotorState。首次 setOutput 遇到离线调用 RelaxMotor，清零电流并恢复 RELAX_MODE；之后一直零输出。
+3. 修改任务：移除初始化阶段提前设置SPD_MODE；循环每10ms先做 AliveCheck，首次确认上线后再设置SPD_MODE（一次性启动标志）；之后setOutput，再发送。掉线由现有AliveCheck撤销模式，一次性标志不复位以免恢复反馈自动重启。不要硬设ONLINE或删除离线保护。
+4. 中断与任务共享AliveFlag/反馈，建议最小单电机试验用保存PRIMASK、关中断、在线检查及短控制计算、恢复PRIMASK的短临界区；CAN发送与sleep放在临界区外。生产方案可改队列/快照。
+5. kp=500、误差10时比例输出5000，现有限流截为1000；增加kp无法绕过离线保护。先确认MotorState、controlMode、currentSet，再检查CAN_Transmit返回值和实际发送结果；HAL_OK仅表示提交。当前未实机验证增益或负载能力。

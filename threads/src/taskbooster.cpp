@@ -4,6 +4,8 @@
 #include "main.h"
 #include "tx_api.h"
 
+#include "bsp_can.hpp"
+
 extern TX_THREAD led_thread;  //线程控制块
 extern TX_THREAD imu_thread;  //线程控制块
 extern TX_THREAD motor_thread;  //线程控制块
