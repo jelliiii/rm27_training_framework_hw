@@ -1,4 +1,5 @@
 #include "bsp_can.hpp"
+#include "DJIMotorHandler.hpp"
 #include <cstring>
 
 extern CAN_HandleTypeDef hcan1;
@@ -72,11 +73,35 @@ HAL_StatusTypeDef CAN_Transmit(CAN_HandleTypeDef *hcan, uint32_t Id,  uint8_t *m
 // TODO: 实现 CAN 接收回调，根据总线和标准帧 ID 分发电机反馈。
 
 extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
-    CAN_RxHeaderTypeDef rx_header={};
-    uint8_t rx_data[8];
-    HAL_CAN_GetRxFifoFillLevel(hcan,CAN_RX_FIFO0);
-    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data) != HAL_OK)
-    Error_Handler();
+    if(hcan != &hcan1 &&hcan != &hcan2)
+    {
+        return;
+    }
+
+    while(HAL_CAN_GetRxFifoFillLevel(hcan,CAN_RX_FIFO0) != 0U)
+    {
+        CAN_RxHeaderTypeDef rx_header={};
+        uint8_t rx_data[8];
+        if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data) != HAL_OK)
+        {
+        Error_Handler();       
+        }
+        if(rx_header.IDE != CAN_ID_STD || rx_header.RTR != CAN_RTR_DATA || rx_header.DLC != 8U)
+        {
+            continue;
+        }
+
+        if(rx_header.StdId <= 0x208U && rx_header.StdId >= 0x201U)
+        {
+            const int index = static_cast<int>(rx_header.StdId - 0x201U);
+
+            (*DJIMotorHandler::Instance)()->updateFeedback(hcan, rx_data, index);
+        }
+
+
+
+    }
+    
 
 }
 

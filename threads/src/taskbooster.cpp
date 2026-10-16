@@ -42,9 +42,9 @@ extern "C" void taskbooster(void)
                      10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
     UINT status3 = tx_thread_create(&motor_thread, TX_NAME("MOTOR Thread"), motor_thread_entry, 0x1234,
                      motor_thread_stack, sizeof(motor_thread_stack),
-                     10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
+                    9, 9, TX_NO_TIME_SLICE, TX_AUTO_START);
 
-    if (status1 != TX_SUCCESS || status2 != TX_SUCCESS)
+    if (status1 != TX_SUCCESS || status2 != TX_SUCCESS || status3 != TX_SUCCESS)
     {
         Error_Handler();
     }

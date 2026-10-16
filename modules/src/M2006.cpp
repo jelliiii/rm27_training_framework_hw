@@ -38,7 +38,7 @@ M2006::M2006()
     maxCurrent = INITIAL_CURRENT_LIMIT;
 
     //速度环 PID
-    speedPid = PID(0.0f, 0.0f, 0.0f,  static_cast<float>(maxCurrent), 0.0f, PID_POSITION);
+    speedPid = PID(50.0f, 0.0f, 0.0f,  static_cast<float>(maxCurrent), 0.0f, PID_POSITION);
     speedPid.Clear();
 
     //位置环 PID
@@ -209,6 +209,7 @@ M2006::MotorStateTypedef M2006::AliveCheck()
     return MotorState;
     // TODO: 比较 AliveFlag 与 Pre_AliveFlag，更新在线状态并保存本次计数。
 }
+
 
 // |             变量             |         单位或含义            |
 // |.            ---              |.           ---              |

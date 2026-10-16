@@ -225,7 +225,7 @@ void DJIMotorHandler::UpdateSensorData(DJIMotor *motor, uint8_t *can_data)
         return;
     }
 
-    const uint16_t encoder = ReadU16BE(&can_data[0]);
+    const uint16_t encoder = ReadU16BE(&can_data[0]);//机械角度
 
     if (encoder >= ENCODER_RANGE)
     {

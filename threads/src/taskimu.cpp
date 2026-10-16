@@ -11,7 +11,7 @@ uint32_t imu_error_count = 0;
 uint32_t imu_read_count = 0;
 
 
-[[noreturn]] void imu_thread_entry(ULONG thread_input){
+void imu_thread_entry(ULONG thread_input){
     UNUSED(thread_input);
 
     imu_stage = 1;//第一阶段——开始初始化
@@ -29,7 +29,6 @@ uint32_t imu_read_count = 0;
     imu_stage = 3;
 
 
-    while (1) {
         imu_sensor.VerifyAccChipID();
         imu_sensor.VerifyGyroChipID();
 
@@ -44,6 +43,5 @@ uint32_t imu_read_count = 0;
             imu_error_count++;
         }
 
-        tx_thread_sleep(1);
-    }
+        tx_thread_sleep(100);
 }

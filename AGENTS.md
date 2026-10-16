@@ -519,3 +519,45 @@ if (CAN_DebugSend() != HAL_OK) Error_Handler();
 这两次调用分别初始化一路 CAN。当前 main 尚未调用 BSP，属于运行流程待补全，不是 memcpy 编译错误的原因。两路共享过滤器分界保持 14；本例只用于启动阶段，初始化失败不热重试。回环调试仅验证 CAN1，CAN2 仍需独立测试。
 
 下一步：先同步头文件与 cpp，再自行按记录 002 的 board/Debug 入口构建。HAL_OK 仅表示提交发送；上板后观察 can_debug_result=1 才说明本例收到了匹配帧。本次没有硬件验证，也没有宣称完整固件链接通过。
+
+---
+
+# 记录 004｜2026-10-16｜M2006 最小控制链检查
+
+验证范围：只读检查启动、CAN、ThreadX、电机和 PID；ARM g++ 对 DJIMotorHandler.cpp、M2006.cpp、pid.cpp、bsp_can.cpp、taskmotor.cpp、taskbooster.cpp 执行 -fsyntax-only，全部通过，taskbooster 的 status3 未使用警告。没有完整链接、烧录或硬件验证；没有修改业务源码或构建产物。
+
+已解决：CAN RX0 NVIC/IRQHandler 已生成；bsp_can 的声明与实现已匹配，cstring、发送检查、过滤器分界已补齐；电机模块和任务已加入 board/CMakeLists.txt；DJIMotorHandler 注册、打包、解析及 AliveCheck 遍历已有实现，PID 主体也已实现。遗留 TODO 不代表对应代码仍为空。
+
+待补充（按最小控制链）：
+1. board/board.ioc 的 CAN1/CAN2 仍是 SILENT_LOOPBACK；实际接电调需改 NORMAL 并重新生成。当前 APB1=42MHz，3*(1+11+2) 分频得到 1Mbit/s。main.c 只调用 MX_CANx_Init，没有调用配置过滤器/Start/通知的 CAN_Init。建议在 motor_thread_entry 中先登记电机再 CAN_Init(&hcanX)，每路只启动一次。不要直接启用旧 bsp_Init：它仍调用无参数 CAN_Init()，且 bsp.cpp 当前不参与构建。
+2. bsp/src/bsp_can.cpp 的 RX0 回调仅取帧后丢弃。需校验标准数据帧、DLC=8、反馈 ID 0x201~0x208，然后 updateFeedback(hcan, data, StdId-0x201)。增加接收/解析/发送失败计数便于观察；HAL_OK 仅证明提交发送。
+3. threads/src/taskmotor.cpp 是空的忙循环，无电机对象、注册、上线检查、目标设置或发送。补长期存活的 M2006 对象和初始化，再周期执行在线检查、setOutput、sendControlData 并阻塞等待。未上线时不要提前设 SPD_MODE 后又调用 setOutput，否则被恢复 RELAX_MODE。ISR 与任务共享反馈/AliveFlag，应设计临界区快照或消息队列；volatile 不能替代同步。
+4. modules/src/M2006.cpp 的速度/位置 PID 增益均为零。先只调速度环，设置非零目标和合适的比例参数，保留限流；具体增益需上板调试。现有解析仅支持 M2006/C610；位置依赖相邻有效反馈位移小于转子半圈，掉线后位置参考需要重新处理。
+5. threads/src/taskbooster.cpp 未检查 status3，需纳入错误检查。motor 线程优先级10且无时间片，空循环会阻碍同级 IMU 和低优先级 LED。当前 tx_initialize_low_level.s 配置100Hz，sleep(1) 是10ms而非1ms；若采用1ms控制周期，应同步修改实际 SysTick 重载和 TX_TIMER_TICKS_PER_SECOND（或另用定时器唤醒），不能只改宏。只调电机时建议暂不启动 IMU。
+
+下一步验收：先只收反馈，确认注册槽位、AliveFlag、ecd、speed_rpm 和 speedFdb 正常；再检查上线状态、速度环非零 currentSet 和控制帧；最后在硬件上验证转动、停机和断联处理。无需先补串口、IMU、PWM 或位置环即可进行基本 M2006 CAN 速度控制。
+
+---
+
+# 记录 005｜2026-10-16｜上板前复查
+
+验证范围：ARM g++ 对电机、PID、CAN、任务创建文件语法检查通过；对 taskmotor.cpp 以 -O1 编译到 /dev/null，实际复现 handler is used uninitialized 警告。未完整链接、未烧录、未做硬件测试；未修改业务源码。
+
+已解决：CAN1/CAN2 已改 NORMAL；接收回调校验标准数据帧及 DLC 并分发 0x201~0x208；电机线程中已加入注册和 CAN1 启动调用；status3 已纳入检查。
+
+1. 阻断：taskmotor.cpp 的 DJIMotorHandler* handler 未初始化就解引用。改为 auto *handler = DJIMotorHandler::Instance();，确保注册和接收回调使用同一对象。
+2. 阻断：线程仍为空忙循环。先做纯反馈测试时，循环至少 tx_thread_sleep(1)，保持 RELAX_MODE；实际100Hz tick下等待1 tick约10ms。局部 motor 因线程不返回而仍存活，可用静态对象方便调试观察。
+3. 转动测试尚未就绪：缺少周期 AliveCheck、上线后启动命令/SPD_MODE、setOutput 和 sendControlData。读取中断反馈需临界区快照或队列同步。
+4. DJIMotor.hpp 中 speedPid 的 kp=50 被 M2006 构造函数的零参数赋值覆盖；speedSet=10 被 DJIMotor 构造函数 speedSet=0 覆盖。应在对象构造后配置速度PID，注册并上线后明确设置目标与模式。不要误以为头文件默认值就是运行值。
+5. 先修1、2并完整构建后可进行零输出反馈实验：CAN1、电调反馈ID0x201，观察 DJIMotorList[0][0]、AliveFlag、ecd、speed_rpm、speedFdb。不调用AliveCheck时 MotorState 仍为OFFLINE是现有逻辑的预期，不能据此认为没有收到反馈。运行后再暂停检查，避免反馈ISR中逐帧断点。转动需先完成3、4并验证通信。
+
+---
+
+# 记录 006｜2026-10-16｜线程对象生命周期复查
+
+验证：ARM g++ 对六个相关 cpp 做 -fsyntax-only -Wall -Wextra，通过且无诊断；未完整链接或上板，未修改业务源码。
+
+1. 已解决：handler 已由 Instance 初始化；M2006 构造函数速度 kp 已改50，基类构造函数 speedSet 已改10，不再被重置为0。CAN正常模式与反馈分发保持接通。
+2. 新阻断：taskmotor.cpp 只 sleep(10) 一次后返回。当前100Hz tick，约100ms后局部 M2006 motor 被析构，注册表仍持有其地址，后续CAN中断会访问生命周期已结束的对象。必须将 sleep 放在永久循环中；可以另外将 motor 声明为 static 便于长期保留，但仍需周期任务。
+3. 最小反馈实验修复：保留初始化，在函数末尾使用 while (1) { tx_thread_sleep(1); }。保持 RELAX_MODE，不发送控制指令；完整构建后观察注册槽位和 AliveFlag/编码器/速度数据。此时未调用AliveCheck，OFFLINE仍属预期。
+4. 转动测试仍未就绪：没有周期在线检查、进入SPD_MODE、setOutput或sendControlData，kp及目标虽非零也不会驱动。闭环接入时补共享数据同步、明确启动/停止与断联处理；kp=50仅是已配置值，不代表已调参验证。

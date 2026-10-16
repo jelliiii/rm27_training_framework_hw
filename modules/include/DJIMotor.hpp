@@ -57,6 +57,12 @@ public:
         float lastPositionFdb; ///< 上次记录的电机位置
         float temperatureFdb;  ///< 电机温度反馈
     };
+// CAN通信
+// 机械角度（单圈）：占 2字节（16位）
+// 转速（RPM）：占 2字节（16位）
+// 实际电流：占 2字节（16位）
+// 温度：占 1字节（8位）
+// 保留位：占 1字节（8位）
 
     MotorStateTypedef MotorState;
     MotorControlModeType controlMode; ///< 当前电机控制模式
@@ -64,7 +70,7 @@ public:
     uint16_t canId;                   ///< 电机的CAN通信ID
     CAN_HandleTypeDef *hcan;          ///< 指向电机使用的CAN接口的指针
 
-    PID speedPid = PID(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, PID_POSITION); ///< TODO: 配置速度环参数
+    PID speedPid = PID(50.0f, 0.0f, 0.0f, 0.0f, 0.0f, PID_POSITION); ///< TODO: 配置速度环参数
     PID positionPid = PID(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, PID_POSITION); ///< TODO: 配置位置环参数
 
     float speedSet;    ///< 设定的目标速度
