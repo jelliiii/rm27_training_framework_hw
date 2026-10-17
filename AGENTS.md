@@ -574,3 +574,38 @@ if (CAN_DebugSend() != HAL_OK) Error_Handler();
 3. 修改任务：移除初始化阶段提前设置SPD_MODE；循环每10ms先做 AliveCheck，首次确认上线后再设置SPD_MODE（一次性启动标志）；之后setOutput，再发送。掉线由现有AliveCheck撤销模式，一次性标志不复位以免恢复反馈自动重启。不要硬设ONLINE或删除离线保护。
 4. 中断与任务共享AliveFlag/反馈，建议最小单电机试验用保存PRIMASK、关中断、在线检查及短控制计算、恢复PRIMASK的短临界区；CAN发送与sleep放在临界区外。生产方案可改队列/快照。
 5. kp=500、误差10时比例输出5000，现有限流截为1000；增加kp无法绕过离线保护。先确认MotorState、controlMode、currentSet，再检查CAN_Transmit返回值和实际发送结果；HAL_OK仅表示提交。当前未实机验证增益或负载能力。
+
+---
+
+# 记录 008｜2026-10-17｜BMI088 加速度三轴为零排查
+
+验证：读取BMI088/IMU/任务/SPI/GPIO源码，ARM g++ 对BMI088.cpp和taskimu.cpp语法检查通过，无诊断；核对Bosch BMI088 datasheet rev1.9的SPI初始化、dummy和电源要求。未读取硬件寄存器，不能确认唯一根因，未修改业务源码。
+
+1. 已核对：ReadReg加速度offset=2、陀螺仪offset=1；从0x12取6字节并低字节在前解码，6g系数为浮点非零。SPI mode0、84MHz/32约2.625MHz符合协议。实际片选接线仍需硬件确认。
+2. 首先观察imu_read_count是否增长和INIT_ERR；初始化失败会永久休眠，不执行ReadAccData。当前Config大量sleep按100Hz tick计，总计约4.2秒，注释中的ms并不准确。acc_data没有显式初始化，未采样的显示值不能视为有效数据。
+3. Config只验证ID，缺少配置读回；HAL_OK不能证明芯片接受写入。检查加速度0x00=0x1E、0x7D=0x04、0x7C=0x00、0x40=0xAB、0x41=0x01；观察ReadAccData读成功后的buffer[0..5]。仅ID正确不足以确认测量已开启。
+4. 首次SPI事务直接写软复位，缺显式dummy读激活SPI；建议先dummy读、再有效读ID、软复位和等待，再读ID并配置/读回。现有首个写事务结束也产生CS上升沿，因此不能仅凭缺dummy断言所有后续配置失效；该问题尚需读回证实。
+5. ReadAccData的NaN初始化被注释，读取失败会保留旧值；恢复无效标记。ACC_DATA_ERR只检查isfinite，全零也算有效；imu_error_count仅查ID错误而不查ACC_DATA_ERR。需区分任务未采样、SPI失败和成功读到全零。等待用户提供imu_read_count、INIT_ERR/ACC_DATA_ERR及陀螺仪是否变化。
+
+---
+
+# 记录 009｜2026-10-17｜复位后 SPI 激活与电源写入
+
+只读核对最新源码及Bosch官方BMI08x_SensorAPI/bmi08a.c（bmi08a_soft_reset与bmi08a_set_power_mode），未改业务源码、未做硬件验证。
+
+1. 当前VerifyAccChipID位于软复位之前；复位后第一笔访问仍是写0x7D=4。官方soft_reset在复位等待后再次dummy读取ID。应补复位后的dummy读，再有效读取ID确认，之后才配置电源。这与0x7D为0而后续配置正常的现象吻合，但需实机读回确认。
+2. 官方电源设置顺序是0x7C=0、等待、0x7D=4、等待。建议按此替换当前先7D后7C的两段，逐次检查返回值和读回。
+3. 当前注释中的ReadReg(...0x7C...)后比较0x04是错误地址/值组合。7C预期0，7D预期4；恢复该代码会误报。
+4. taskimu的acc_check只在Config后采集一次，不是实时寄存器镜像。重新烧录并重跑，确认观察已重新读取的结果；若修复仍失败，在紧邻写入后读取7D，并检查实际SPI帧7D 04、读帧FD 00 00及rx[2]，再区分写失败与后续复位。
+
+来源：https://github.com/boschsensortec/BMI08x_SensorAPI/blob/master/bmi08a.c 。此前仅建议初始化入口预读不足；需明确覆盖软复位后的激活步骤。
+
+---
+
+# 记录 010｜2026-10-17｜工作模式读回3
+
+静态复查最新Config及用户截图，未编译/上板、未修改业务源码。
+1. 截图acc_check为[30,4,3,171,1]。源码dummy读和有效ID读仍在软复位前，复位后没有再次dummy读。交换电源配置顺序后，第一笔变为写7C，7C仍3而第二笔7D已4，与首笔用于SPI切换的解释一致。
+2. 应在软复位后的sleep(150)之后、写ACC_PWR_CONF之前插入dummy读+有效ID读；复用已有dummy/id1，避免同一作用域重定义。
+3. 新缺陷：有效ID读取成功后没有将ACC_CHIP_ID_ERR设为false，而该标志默认true；原来末尾的赋值被删除，最终INIT_ERR会保持true。有效ID读取后必须显式更新该标志再判断。
+4. 预期重新执行读取后acc_check=[30,4,0,171,1]，INIT_ERR=false且imu_read_count增加。仅换写入顺序不能替代复位后的SPI激活。

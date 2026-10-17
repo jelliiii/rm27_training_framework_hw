@@ -6,7 +6,6 @@
 TX_THREAD imu_thread;
 uint8_t imu_thread_stack[1024]={0};
 
-uint32_t imu_stage = 0;
 uint32_t imu_error_count = 0;
 uint32_t imu_read_count = 0;
 
@@ -14,26 +13,34 @@ uint32_t imu_read_count = 0;
 void imu_thread_entry(ULONG thread_input){
     UNUSED(thread_input);
 
-    imu_stage = 1;//第一阶段——开始初始化
     BMI088::cBMI088 imu_sensor;
 
     imu_sensor.Config();
 
+    // //验证 accID ，各种配置是否正确
+    // static uint8_t acc_check[5] = {};
+    // static bool acc_read_ok[5] = {};
+
+    // const uint8_t addresses[5] = {0x00, 0x7D, 0x7C, 0x40, 0x41};
+
+    // for(int i = 0; i < 5; i++){
+    //     acc_read_ok[i] = imu_sensor.ReadReg
+    //     (BMI088::BMI088_CS_ACC, addresses[i], &acc_check[i], 1);
+    // }
+
     if(imu_sensor.self_test.INIT_ERR){
-        imu_stage = 2; //初始化失败——第二阶段
         while(1){
             tx_thread_sleep(10);
         }
     }
 
-    imu_stage = 3;
 
     while(1)
     {
 
 
-        imu_sensor.VerifyAccChipID();
-        imu_sensor.VerifyGyroChipID();
+        // imu_sensor.VerifyAccChipID();
+        // imu_sensor.VerifyGyroChipID();
 
         imu_sensor.ReadAccData(&imu_sensor.acc_data);
 

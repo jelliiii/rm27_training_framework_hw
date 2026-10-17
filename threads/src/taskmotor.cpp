@@ -17,7 +17,7 @@ void motor_thread_entry(ULONG thread_input){
     auto *handler = DJIMotorHandler::Instance();    // 以 CAN1、反馈 ID 0x201 为例，按实际接线和电调 ID 修改。
     handler->registerMotor(&motor, &hcan1, 0x201);
     motor.speedPid.Tuning(50,0,0);
-    motor.speedSet = 10.0f;
+    motor.speedSet = 0.0f;
     motor.controlMode = DJIMotor::SPD_MODE;
 
     if(CAN_Init(&hcan1) != HAL_OK)

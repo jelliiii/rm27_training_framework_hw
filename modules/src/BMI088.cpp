@@ -146,9 +146,6 @@ namespace BMI088
     {
         uint8_t id = 0;
 
-        uint8_t dummy;
-
-        ReadReg(BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &dummy, 1);
 
         bool ok = ReadReg(
             BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &id, 1);
@@ -237,7 +234,7 @@ namespace BMI088
         HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
 
         HAL_StatusTypeDef status =
-            HAL_SPI_Transmit(&hspi1, tx, sizeof(tx), 100);
+            HAL_SPI_Transmit(&hspi1, tx, sizeof(tx), HAL_MAX_DELAY);
 
         // 无论成功失败，都结束本次片选。
         HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
@@ -276,7 +273,7 @@ namespace BMI088
         HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
 
         HAL_StatusTypeDef status = HAL_SPI_TransmitReceive(
-            &hspi1, tx, rx, offset + len, 100);
+            &hspi1, tx, rx, offset + len, HAL_MAX_DELAY);
 
         HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
 
@@ -297,23 +294,48 @@ namespace BMI088
         self_test.INIT_ERR = true;
         tx_thread_sleep(10); //< 等待系统稳定
 
+
         /*-------------------------------------加速度计初始化-------------------------------------*/
         
         //< 先软重启，清空所有寄存器
         uint8_t pTxData;
         pTxData = ACC_SOFTRESET_VAL;
         WriteReg(BMI088_CS_ACC, ACC_SOFTRESET_ADDR, &pTxData, 1);
-        tx_thread_sleep(100); //< 延时100ms,重启需要时间
+        tx_thread_sleep(150); //< 延时100ms,重启需要时间
+
+        //< 软复位后第一步要先切换到 spi 模式
+
+        uint8_t dummy;//< 激活 spi 模式，此次返回内容不重要
+        if(!ReadReg(BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &dummy, 1))
+            return;
+
+        uint8_t id1 = 0;//< 预读 chipID
+        if(!ReadReg(BMI088_CS_ACC, ACC_CHIP_ID_ADDR, &id1, 1)
+            || id1 != ACC_CHIP_ID_VAL)
+        {
+            self_test.ACC_CHIP_ID_ERR = true;
+            return;
+        };
+
+        tx_thread_sleep(5); //< 延时5ms
+
+        //< 先确认工作模式，再打开电源，开启测量
+
+        //< 加速度计变成正常模式
+        pTxData = ACC_PWR_CONF_ACT;
+        if(!WriteReg(BMI088_CS_ACC, ACC_PWR_CONF_ADDR, &pTxData, 1)) return;
+        tx_thread_sleep(10); //
 
         //< 打开加速度计电源
         pTxData = ACC_PWR_CTRL_ON;
         if(!WriteReg(BMI088_CS_ACC, ACC_PWR_CTRL_ADDR, &pTxData, 1)) return;
         tx_thread_sleep(150);
 
-        //< 加速度计变成正常模式
-        pTxData = ACC_PWR_CONF_ACT;
-        if(!WriteReg(BMI088_CS_ACC, ACC_PWR_CONF_ADDR, &pTxData, 1)) return;
-        tx_thread_sleep(10); //
+        uint8_t power = 0;
+        if(!ReadReg(BMI088_CS_ACC, 0x7D, &power,1) || power != 0x04)
+        {
+            return;
+        }
 
         //< 测量范围
         pTxData = ACC_RANGE_6G;
@@ -333,6 +355,7 @@ namespace BMI088
         tx_thread_sleep(5); //< 延时5ms
 
         VerifyAccChipID();
+
 
         /*-------------------------------------陀螺仪初始化-------------------------------------*/
         //< 先软重启，清空所有寄存器
@@ -366,7 +389,6 @@ namespace BMI088
 
         VerifyGyroChipID();
 
-
         if (self_test.ACC_CHIP_ID_ERR ||
         self_test.GYRO_CHIP_ID_ERR)
         return;
@@ -384,8 +406,8 @@ namespace BMI088
             return;
         }
 
-        const float invalid = InvalidValue();
-        *data = {invalid, invalid, invalid, invalid};
+        // const float invalid = InvalidValue();
+        // *data = {invalid, invalid, invalid, invalid};
 
         uint8_t buffer[ACC_XYZ_LEN] = {};
 
